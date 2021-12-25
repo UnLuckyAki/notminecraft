@@ -1,54 +1,33 @@
 from ursina import *
-
-# Test Cube
-class Test_cube(Entity):
-	def __init__(self):
-		super().__init__(
-			parent = scene,
-			model = 'cube',
-			texture = 'white_cube',
-			rotation = Vec3(45,45,45))
-
-# Test button
-class Test_button(Button):
-	def __init__(self,scale = 0.1):
-		super().__init__(
-			parent = scene,
-			model = 'cube',
-			texture = 'brick',
-			color = color.white,
-			highlight_color = color.red,
-			pressed_color = color.lime)
-
-	def input(self,key):
-		if self.hovered:
-			if key == 'left mouse down':
-				punch_sound.play()
-
-
-# update is run every frame
-def update():
-	#print('test')
-	if held_keys['a']:
-		cube.x -= 1 * time.dt
-
-# basic window
+from ursina.prefabs.first_person_controller import FirstPersonController
 app = Ursina()
+grass_texture = load_texture('assets/grass_block.png')
 
-# basic cube 
-cube = Entity(model='quad', color=color.orange, scale = (2,5), position = (5,1))
+class Voxel(Button):
+    def __init__(self, position=(0, 0, 0)):
+        super().__init__(
+            parent=scene,
+            position=position,
+            model='assets/block',
+            origin_y=0.5,
+            texture=grass_texture,
+            color=color.color(0,0,random.uniform(0.9,1)),
+            scale = 0.5
+        )
 
-# quad with texture
-#sans_image = load_texture('Sans.png')
-#sans = Entity(model = 'quad', texture = sans_image)
-#sans = Entity(model = 'quad', texture = 'Sans.png')
+    def input(self, key):
+        if self.hovered:
+            if key =='right mouse down': voxel = Voxel(position= self.position+ mouse.normal)
+            if key == 'left mouse down': destroy(self)
 
-# creating a block properly
-test = Test_cube()
 
-# creating a button
-btn = Test_button()
-punch_sound = Audio('assets/punch', loop=False, autoplay=False)
+
+for z in range(64):
+    for x in range(64):
+        voxel = Voxel(position=(x, 0, z))
+player = FirstPersonController()
+
+
+
 
 app.run()
-
